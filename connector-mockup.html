@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Connector requests - Mockup | Syracuse ITS</title>
+<style>
+  :root{
+    --navy:#000E54; --navy-dk:#000833; --orange:#F76900; --orange-dk:#D44500;
+    --bg:#F4F6F9; --card:#fff; --line:#dbe0e8; --ink:#1c2330; --muted:#5b6472;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"ShermanSans","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.5}
+  a{color:var(--orange-dk)}
+  .mock-flag{background:#FFF7E6;border-bottom:2px solid #E9B949;color:#6b4e00;
+    font-size:.85rem;text-align:center;padding:.5rem 1rem;font-weight:600}
+  header.site{background:var(--navy);color:#fff;border-bottom:3px solid var(--orange)}
+  .bar{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem}
+  .blockS{background:var(--orange);color:#fff;font-weight:800;font-size:1.15rem;
+    width:2.1rem;height:2.1rem;display:grid;place-items:center;border-radius:5px}
+  .bar h1{font-size:1rem;margin:0;font-weight:700}
+  .bar p{margin:0;font-size:.72rem;color:#c9cfe0}
+
+  /* Tabs */
+  .tabsbar{background:var(--navy-dk);border-bottom:1px solid #1a237a}
+  .tabs{max-width:1080px;margin:0 auto;display:flex;gap:.25rem;padding:0 1rem}
+  .tabs button{font:inherit;font-weight:700;color:#c9cfe0;background:transparent;border:0;
+    padding:.85rem 1.15rem;cursor:pointer;border-bottom:3px solid transparent}
+  .tabs button:hover{color:#fff}
+  .tabs button[aria-selected="true"]{color:#fff;border-bottom-color:var(--orange)}
+  .tabs button:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
+
+  .panel[hidden]{display:none}
+  .panelwrap{max-width:1080px;margin:1.4rem auto 3rem;padding:0 1.25rem}
+  .formwrap{max-width:900px}
+
+  .eyebrow{color:var(--orange-dk);font-size:.72rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;margin-bottom:.35rem}
+  h2.title{margin:.1rem 0 .3rem;font-size:1.6rem}
+  .lead{color:var(--muted);max-width:64ch;margin:0 0 1.2rem}
+
+  /* Form */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 6px 22px rgba(0,14,84,.06);padding:1.5rem 1.5rem 1.75rem}
+  .intro{color:var(--muted);font-size:.95rem;margin:.1rem 0 1.3rem}
+  fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:1.3rem 0 0}
+  fieldset:first-of-type{border-top:0;padding-top:0}
+  legend{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange-dk);padding:0}
+  .field{margin:1rem 0}
+  label{display:block;font-weight:600;font-size:.92rem;margin-bottom:.3rem}
+  .req{color:var(--orange-dk);font-weight:700}
+  .hint{color:var(--muted);font-size:.82rem;margin:.15rem 0 .45rem}
+  input[type=text],input[type=url],select,textarea{
+    width:100%;font:inherit;color:var(--ink);background:#fff;border:1px solid #c3cad6;border-radius:8px;padding:.6rem .7rem}
+  textarea{min-height:92px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:3px solid var(--orange);outline-offset:1px;border-color:var(--navy)}
+  .radios label{font-weight:400;display:flex;align-items:flex-start;gap:.5rem;margin:.35rem 0}
+  .radios input{margin-top:.2rem}
+  .conditional{border-left:3px solid var(--orange);background:#fff8f4;padding:.75rem .85rem;border-radius:0 8px 8px 0;margin-top:.5rem}
+  .deflect{display:none;border-left:4px solid var(--orange-dk);background:#fdece6;color:#7a2410;
+    padding:.8rem .95rem;border-radius:0 8px 8px 0;margin-top:1.1rem;font-size:.9rem}
+  .deflect.show{display:block}
+  .deflect b{color:#7a2410}
+  .deflect ul{margin:.4rem 0 0;padding-left:1.1rem}
+  .actions{display:flex;gap:.75rem;align-items:center;margin-top:1.5rem;flex-wrap:wrap}
+  button.b{font:inherit;font-weight:700;border:0;border-radius:999px;padding:.7rem 1.4rem;cursor:pointer}
+  .btn-primary{background:var(--orange);color:#fff}
+  .btn-primary:hover{background:var(--orange-dk)}
+  .btn-ghost{background:transparent;color:var(--navy);border:1px solid #c3cad6}
+  .note-next{background:#f0f4fb;border:1px solid #d5deee;border-radius:10px;padding:1rem 1.1rem;margin-top:1.4rem;font-size:.9rem;color:#33405c}
+  .note-next b{color:var(--navy)}
+  .preview{display:none;margin-top:1.4rem;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .preview h3{margin:0;background:var(--navy);color:#fff;font-size:.9rem;padding:.7rem 1rem}
+  .preview .body{padding:1rem 1.1rem;background:#fff}
+  .err{color:var(--orange-dk);font-size:.82rem;margin-top:.3rem;display:none}
+  .field.invalid .err{display:block}
+  .field.invalid input,.field.invalid select,.field.invalid textarea{border-color:var(--orange-dk)}
+
+  /* Queue */
+  .qhead{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .summary{display:flex;gap:.6rem;flex-wrap:wrap;margin:0 0 1rem}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.6rem .9rem;min-width:100px}
+  .stat b{display:block;font-size:1.4rem;line-height:1.1;color:var(--navy)}
+  .stat span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .toolbar{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.6rem}
+  .toolbar input,.toolbar select{font:inherit;border:1px solid #c3cad6;border-radius:8px;padding:.5rem .6rem}
+  .toolbar input{flex:1;min-width:200px}
+  .tablewrap{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 6px 22px rgba(0,14,84,.06)}
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  thead th{background:#eef1f7;text-align:left;padding:.65rem .8rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#41506b;border-bottom:1px solid var(--line)}
+  tbody td{padding:.7rem .8rem;border-bottom:1px solid #eef1f5;vertical-align:top}
+  tbody tr.row{cursor:pointer}
+  tbody tr.row:hover{background:#f7f9fc}
+  tbody tr.row:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
+  .key{font-weight:700;color:var(--orange-dk);white-space:nowrap}
+  .muted{color:var(--muted)}
+  .chip{display:inline-block;font-size:.72rem;font-weight:700;padding:.18rem .55rem;border-radius:999px;white-space:nowrap}
+  .c-review{background:#e7effc;color:#1b4c9b}
+  .c-docs{background:#FFF3D6;color:#8a6100}
+  .c-under{background:#efe7fb;color:#5a2fa0}
+  .c-approved{background:#e3f5ea;color:#0a7d3b}
+  .c-declined{background:#fde4e1;color:#b3271b}
+  .c-blocked{background:#eceff3;color:#5b6472}
+  .c-unknown{background:#eceff3;color:#5b6472}
+  .soc-attached{color:#0a7d3b;font-weight:600}
+  .soc-can{color:#8a6100;font-weight:600}
+  .soc-none{color:#b3271b;font-weight:600}
+  .soc-unknown{color:#5b6472;font-weight:600}
+  .data-conf{font-weight:600;color:#b3271b}
+  .detail td{background:#fbfcfe;padding:0}
+  .detail .inner{padding:1rem 1.1rem 1.2rem}
+  .detail h4{margin:.1rem 0 .7rem;font-size:.95rem;color:var(--navy)}
+  .kv{display:grid;grid-template-columns:200px 1fr;gap:.35rem .9rem;font-size:.88rem}
+  .kv dt{color:var(--muted);font-weight:600}
+  .kv dd{margin:0}
+  .hidden{display:none}
+  .caret{display:inline-block;width:.9rem;color:var(--muted);transition:transform .15s}
+  tr.open .caret{transform:rotate(90deg)}
+
+  footer{max-width:1080px;margin:0 auto;padding:1.4rem 1.25rem 3rem;color:var(--muted);font-size:.8rem}
+  @media(max-width:760px){.hide-sm{display:none}.kv{grid-template-columns:1fr}h2.title{font-size:1.4rem}}
+</style>
+</head>
+<body>
+  <div class="mock-flag">MOCKUP for review only - not connected to Jira. Nothing is sent and no ticket is created. Queue data is fictional. Draft pending Aaron's approval.</div>
+
+  <header class="site">
+    <div class="bar">
+      <span class="blockS" aria-hidden="true">S</span>
+      <span>
+        <h1>Syracuse University</h1>
+        <p>Information Technology Services - AI Help</p>
+      </span>
+    </div>
+  </header>
+
+  <div class="tabsbar">
+    <div class="tabs" role="tablist" aria-label="Connector mockup views">
+      <button role="tab" id="tab-form" aria-controls="panel-form" aria-selected="true">Request form</button>
+      <button role="tab" id="tab-queue" aria-controls="panel-queue" aria-selected="false">Agent queue</button>
+    </div>
+  </div>
+
+  <!-- ================= FORM PANEL ================= -->
+  <section class="panel" id="panel-form" role="tabpanel" aria-labelledby="tab-form">
+    <div class="panelwrap formwrap">
+      <p class="eyebrow">AI Help - Service Request</p>
+      <h2 class="title">Request a Claude Connector</h2>
+      <p class="lead">Claude Enterprise connectors let Claude read from and work with third-party tools. Some (Microsoft 365, Atlassian) are already enabled for all SU users. Others need ITS review and approval before they can be turned on university-wide. Use this form to request one.</p>
+
+      <div class="card">
+        <p class="intro">Fields marked <span class="req">*</span> are required. This request opens a ticket in the AI Help (AIHELP) queue so the AI team has everything needed to review it.</p>
+
+        <form id="connForm" novalidate>
+          <fieldset>
+            <legend>The connector</legend>
+            <div class="field">
+              <label for="cname">Connector name <span class="req">*</span></label>
+              <p class="hint" id="cname-hint">The tool or service you want Claude to connect to (for example, Salesforce, ServiceNow, Notion).</p>
+              <input type="text" id="cname" autocomplete="off" maxlength="120" aria-describedby="cname-hint" />
+              <p class="err" id="cname-err">Please enter the connector name.</p>
+            </div>
+            <div class="field">
+              <label for="cdocs">Vendor connector / MCP documentation URL <span class="req">*</span></label>
+              <p class="hint" id="cdocs-hint">A link (starting with https://) to the vendor's connector or Model Context Protocol (MCP) documentation.</p>
+              <input type="url" id="cdocs" placeholder="https://" maxlength="300" aria-describedby="cdocs-hint" />
+              <p class="err" id="cdocs-err">Please enter a valid https link with no spaces or quotes.</p>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Your use case</legend>
+            <div class="field">
+              <label for="usecase">Business use case <span class="req">*</span></label>
+              <p class="hint" id="usecase-hint">How you plan to use the integration and what problem it solves. Describe the use case only - do not paste actual records, credentials, or Confidential data into this form.</p>
+              <textarea id="usecase" maxlength="2000" aria-describedby="usecase-hint"></textarea>
+              <p class="err" id="usecase-err">Please describe your use case.</p>
+            </div>
+            <div class="field">
+              <label for="breadth">Approximate number of users / department</label>
+              <p class="hint" id="breadth-hint">Optional. Helps ITS weigh how broadly the connector would be used.</p>
+              <input type="text" id="breadth" maxlength="120" placeholder="e.g. ~40 users, Whitman School" aria-describedby="breadth-hint" />
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Security and compliance</legend>
+            <div class="field">
+              <label>Does SU already have a contract or agreement with this vendor? <span class="req">*</span></label>
+              <div class="radios" role="radiogroup" aria-label="Existing SU contract">
+                <label><input type="radio" name="contract" value="Yes" /> Yes</label>
+                <label><input type="radio" name="contract" value="No" /> No</label>
+                <label><input type="radio" name="contract" value="Unsure" /> Unsure</label>
+              </div>
+              <p class="err" id="contract-err">Please choose one.</p>
+            </div>
+            <div class="field">
+              <label for="soc2">SOC 2 Type II report status <span class="req">*</span></label>
+              <p class="hint" id="soc2-hint">A SOC 2 Type II report is the most important requirement. Requests are held until it is provided. Prefer a link to the vendor's trust portal over uploading the file.</p>
+              <select id="soc2" aria-describedby="soc2-hint">
+                <option value="">Select one...</option>
+                <option value="Attached">I have it (I will provide a trust-portal link or attach it)</option>
+                <option value="Can obtain">I can obtain it from the vendor</option>
+                <option value="Vendor lacks one">The vendor does not have one</option>
+              </select>
+              <p class="err" id="soc2-err">Please choose the SOC 2 status.</p>
+              <div class="conditional" id="soc2upload" style="display:none">
+                <label for="soc2link">Vendor trust-portal link to the SOC 2 Type II report (preferred)</label>
+                <p class="hint" id="soc2link-hint">Paste the vendor trust-page link. (In the live form a file upload is also available; prefer the link so an NDA-bound report is not stored on the ticket. Upload is disabled in this mockup.)</p>
+                <input type="url" id="soc2link" maxlength="300" placeholder="https://trust.vendor.com/..." aria-describedby="soc2link-hint" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="dataclass">University data that would flow through the connector <span class="req">*</span></label>
+              <p class="hint" id="dataclass-hint">Highest data classification the integration could touch. Confidential data (FERPA, HIPAA, PII, financial) faces a higher bar.</p>
+              <select id="dataclass" aria-describedby="dataclass-hint">
+                <option value="">Select one...</option>
+                <option value="Public">Public</option>
+                <option value="Internal">Internal</option>
+                <option value="Confidential">Confidential (FERPA, HIPAA, PII, financial)</option>
+                <option value="Restricted">Restricted</option>
+                <option value="Unsure">Unsure</option>
+              </select>
+              <p class="err" id="dataclass-err">Please choose a data classification.</p>
+            </div>
+
+            <div class="deflect" id="deflect" role="status" aria-live="polite"></div>
+          </fieldset>
+
+          <div class="actions">
+            <button type="submit" class="b btn-primary">Submit request</button>
+            <button type="reset" class="b btn-ghost">Clear form</button>
+          </div>
+        </form>
+
+        <div class="note-next">
+          <b>What happens next.</b> ITS reviews connector requests for security compliance (SOC 2), any existing SU vendor relationship, data-classification risk, breadth of use, and vendor maturity. Simple requests with a SOC 2 report on hand may resolve in a few business days; more complex reviews take longer. Questions? Email <a href="mailto:aihelp@syr.edu">aihelp@syr.edu</a>.
+        </div>
+
+        <div class="preview" id="preview" aria-live="polite">
+          <h3>Preview: the AIHELP ticket this would open</h3>
+          <div class="body"><dl class="kv" id="previewBody"></dl></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= QUEUE PANEL ================= -->
+  <section class="panel" id="panel-queue" role="tabpanel" aria-labelledby="tab-queue" hidden>
+    <div class="panelwrap">
+      <div class="qhead">
+        <div>
+          <p class="eyebrow">AI Help - AIHELP queue</p>
+          <h2 class="title">Claude Connector requests</h2>
+          <p class="lead" style="margin-bottom:0">Request type "Request a Claude Connector". Click or press Enter on a row to see the full structured ticket. Sample data below is fictional.</p>
+        </div>
+        <button class="b btn-primary" id="toFormTab" type="button">+ New request (form)</button>
+      </div>
+
+      <div class="summary" id="summary"></div>
+
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="Filter by connector, requester, or key..." aria-label="Filter tickets" />
+        <select id="statusFilter" aria-label="Filter by status">
+          <option value="">All statuses</option>
+          <option>Waiting for review</option>
+          <option>Waiting for documentation</option>
+          <option>Under review</option>
+          <option>Approved</option>
+          <option>Declined</option>
+          <option>Blocked</option>
+        </select>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:1.2rem"></th>
+              <th>Key</th>
+              <th>Connector</th>
+              <th class="hide-sm">Requester</th>
+              <th class="hide-sm">SOC 2</th>
+              <th class="hide-sm">Data class</th>
+              <th>Status</th>
+              <th class="hide-sm">Created</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Syracuse University ITS - AI Help. Mockup of a proposed JSM request type and its AIHELP queue, for internal review only.
+  </footer>
+
+<script>
+/* ---- Shared helpers ---- */
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function isSafeHttpUrl(u){
+  if(!u || /[\s"'<>`]/.test(u)) return false;
+  try{ var x = new URL(u); return x.protocol === 'http:' || x.protocol === 'https:'; }
+  catch(e){ return false; }
+}
+function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
+
+/* ---- Tabs ---- */
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function activate(tab){
+    tabs.forEach(function(t){
+      var selected = (t === tab);
+      t.setAttribute('aria-selected', selected ? 'true' : 'false');
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !selected;
+    });
+    tab.focus();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ activate(t); });
+    t.addEventListener('keydown', function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+        e.preventDefault();
+        var n = (i + (e.key==='ArrowRight'?1:tabs.length-1)) % tabs.length;
+        activate(tabs[n]);
+      }
+    });
+  });
+  var toForm = document.getElementById('toFormTab');
+  if(toForm) toForm.addEventListener('click', function(){ activate(document.getElementById('tab-form')); });
+})();
+
+/* ---- Form ---- */
+(function(){
+  var form = document.getElementById('connForm');
+  var soc2 = document.getElementById('soc2');
+  var soc2upload = document.getElementById('soc2upload');
+  var dataclass = document.getElementById('dataclass');
+  var deflect = document.getElementById('deflect');
+
+  function fieldEl(node){ return node.closest('.field'); }
+
+  function setInvalid(el){
+    var f = fieldEl(el); if(!f) return;
+    f.classList.add('invalid');
+    var input = el.matches('input,select,textarea') ? el : f.querySelector('input,select,textarea');
+    var errP = f.querySelector('.err');
+    if(input){
+      input.setAttribute('aria-invalid','true');
+      if(errP && errP.id){
+        var desc = (input.getAttribute('aria-describedby')||'').split(/\s+/).filter(Boolean);
+        if(desc.indexOf(errP.id) === -1){ desc.push(errP.id); input.setAttribute('aria-describedby', desc.join(' ')); }
+      }
+    }
+  }
+  function clearInvalid(){
+    Array.prototype.forEach.call(document.querySelectorAll('#connForm .field.invalid'), function(f){
+      f.classList.remove('invalid');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#connForm [aria-invalid="true"]'), function(el){
+      el.removeAttribute('aria-invalid');
+    });
+  }
+
+  function updateSoc2Upload(){ soc2upload.style.display = (soc2.value === 'Attached') ? 'block' : 'none'; }
+
+  function updateDeflect(){
+    var msgs = [];
+    if(soc2.value === 'Vendor lacks one'){
+      msgs.push('Without a SOC 2 Type II report, a connector is very unlikely to be approved under current policy. Consider whether the vendor can provide one, or whether a local MCP connection in Claude Desktop (which keeps data on your own machine) fits your use case.');
+    }
+    if(dataclass.value === 'Restricted'){
+      msgs.push('Connectors that would expose Restricted university data face the highest bar and are rarely approvable. Please confirm the classification before submitting.');
+    }
+    if(dataclass.value === 'Confidential'){
+      msgs.push('This connector could touch Confidential data (FERPA, HIPAA, PII, or financial). It will get additional security review. Describe the use case only - never paste actual records into this form.');
+    }
+    if(msgs.length){
+      deflect.innerHTML = '<b>Before you submit</b><ul>' + msgs.map(function(m){ return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>';
+      deflect.classList.add('show');
+    } else {
+      deflect.classList.remove('show');
+      deflect.innerHTML = '';
+    }
+  }
+
+  soc2.addEventListener('change', function(){ updateSoc2Upload(); updateDeflect(); });
+  dataclass.addEventListener('change', updateDeflect);
+
+  form.addEventListener('reset', function(){
+    // Defer so control values are cleared before we sync derived UI.
+    setTimeout(function(){
+      clearInvalid();
+      updateSoc2Upload();
+      updateDeflect();
+      var pv = document.getElementById('preview'); pv.style.display = 'none';
+    }, 0);
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    clearInvalid();
+    var ok = true, firstBad = null;
+    function req(id){ var el=document.getElementById(id); if(!el.value.trim()){ setInvalid(el); ok=false; firstBad=firstBad||el; } return el; }
+
+    req('cname');
+    var docs = document.getElementById('cdocs');
+    if(!isSafeHttpUrl(docs.value.trim())){ setInvalid(docs); ok=false; firstBad=firstBad||docs; }
+    req('usecase');
+    var contract = form.querySelector('input[name="contract"]:checked');
+    if(!contract){ setInvalid(document.querySelector('#connForm .radios')); ok=false; firstBad=firstBad||document.querySelector('#connForm .radios input'); }
+    req('soc2');
+    req('dataclass');
+    // If the SOC 2 link is provided, it must be a safe URL too.
+    var soc2link = document.getElementById('soc2link');
+    if(soc2.value === 'Attached' && soc2link.value.trim() && !isSafeHttpUrl(soc2link.value.trim())){ setInvalid(soc2link); ok=false; firstBad=firstBad||soc2link; }
+
+    if(!ok){ if(firstBad && firstBad.focus) firstBad.focus(); return; }
+
+    var val = function(id){ return document.getElementById(id).value.trim(); };
+    var rows = [
+      ['Project / queue','AI Help (AIHELP)'],
+      ['Request type','Request a Claude Connector'],
+      ['Issue type','Service Request'],
+      ['Summary','Connector request: ' + val('cname')],
+      ['Reporter','(the signed-in SU user)'],
+      ['Connector name',val('cname')],
+      ['Vendor docs URL',val('cdocs')],
+      ['Business use case',val('usecase')],
+      ['Users / department',val('breadth') || '(not provided)'],
+      ['Existing SU contract',contract.value],
+      ['SOC 2 Type II status',val('soc2')],
+      ['SOC 2 trust-portal link', soc2.value==='Attached' ? (val('soc2link') || '(to be provided)') : '(n/a)'],
+      ['Data classification',val('dataclass')]
+    ];
+    var dl = document.getElementById('previewBody'); dl.innerHTML = '';
+    rows.forEach(function(r){
+      var dt=document.createElement('dt'); dt.textContent=r[0];
+      var dd=document.createElement('dd'); dd.textContent=r[1];
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+    var pv=document.getElementById('preview'); pv.style.display='block'; pv.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+})();
+
+/* ---- Queue ---- */
+(function(){
+  var STATUS_CLASS={"Waiting for review":"c-review","Waiting for documentation":"c-docs","Under review":"c-under","Approved":"c-approved","Declined":"c-declined","Blocked":"c-blocked"};
+  function statusClass(s){ return STATUS_CLASS[s] || "c-unknown"; }
+  function socClass(v){
+    if(v==="Attached") return "soc-attached";
+    if(v==="Can obtain") return "soc-can";
+    if(v==="Vendor lacks one") return "soc-none";
+    return "soc-unknown";
+  }
+  var TICKETS=[
+    {key:"AIHELP-4142",connector:"Box",docs:"https://developer.box.com/guides/mcp/",requester:"Priya N.",dept:"Office of Research",use:"Let Claude search and summarize grant documents stored in departmental Box folders for faster proposal turnaround.",contract:"Yes",soc2:"Attached",data:"Confidential",status:"Under review",created:"2026-08-18",users:"~120, Office of Research"},
+    {key:"AIHELP-4145",connector:"Smartsheet",docs:"https://smartsheet.redoc.ly/",requester:"Dana R.",dept:"Facilities",use:"Pull project sheet status into Claude to draft weekly facilities updates.",contract:"Unsure",soc2:"Can obtain",data:"Public",status:"Waiting for review",created:"2026-08-18",users:"~15, Facilities PMO"},
+    {key:"AIHELP-4133",connector:"Notion",docs:"https://developers.notion.com/",requester:"Marcus L.",dept:"Libraries",use:"Connect a Notion team wiki so Claude can answer staff process questions.",contract:"No",soc2:"Vendor lacks one",data:"Internal",status:"Blocked",created:"2026-08-17",users:"~30, Libraries"},
+    {key:"AIHELP-4131",connector:"ServiceNow",docs:"https://developer.servicenow.com/",requester:"Ken A.",dept:"ITS",use:"Read incident records so Claude can help draft knowledge articles from recurring tickets.",contract:"Yes",soc2:"Can obtain",data:"Internal",status:"Waiting for documentation",created:"2026-08-16",users:"~200, ITS"},
+    {key:"AIHELP-4127",connector:"Salesforce",docs:"https://developer.salesforce.com/docs/",requester:"Alexis T.",dept:"Whitman School",use:"Surface CRM records in Claude to speed up advancement outreach drafting.",contract:"Yes",soc2:"Attached",data:"Confidential",status:"Waiting for review",created:"2026-08-15",users:"~40, Whitman Advancement"},
+    {key:"AIHELP-4150",connector:"GitHub",docs:"https://docs.github.com/",requester:"Sam O.",dept:"iSchool",use:"Give Claude read access to course repos for teaching-assistant support.",contract:"Yes",soc2:"Attached",data:"Internal",status:"Approved",created:"2026-08-12",users:"~60, iSchool"},
+    {key:"AIHELP-4140",connector:"Slack",docs:"https://api.slack.com/",requester:"Jordan P.",dept:"Athletics",use:"Let Claude summarize channel threads for staff who miss meetings.",contract:"Yes",soc2:"Attached",data:"Internal",status:"Approved",created:"2026-08-10",users:"~80, Athletics Ops"},
+    {key:"AIHELP-4152",connector:"Zoom",docs:"https://developers.zoom.us/",requester:"Riley C.",dept:"College of Professional Studies",use:"Pull meeting transcripts into Claude for follow-up summaries.",contract:"Yes",soc2:"Unsure",data:"Confidential",status:"Declined",created:"2026-08-09",users:"~25, CPS"}
+  ];
+  function kv(k,v){ return '<dt>'+esc(k)+'</dt><dd>'+v+'</dd>'; } // v is pre-escaped or safe markup by caller
+  function render(){
+    var q=document.getElementById('q').value.trim().toLowerCase();
+    var sf=document.getElementById('statusFilter').value;
+    var tbody=document.getElementById('rows'); tbody.innerHTML='';
+    var shown=TICKETS.filter(function(t){
+      var hay=(t.key+' '+t.connector+' '+t.requester+' '+t.dept).toLowerCase();
+      return (!q||hay.indexOf(q)>-1)&&(!sf||t.status===sf);
+    });
+    shown.forEach(function(t){
+      var tr=document.createElement('tr');
+      tr.className='row';
+      tr.setAttribute('tabindex','0');
+      tr.setAttribute('role','button');
+      tr.setAttribute('aria-expanded','false');
+      tr.innerHTML='<td><span class="caret" aria-hidden="true">&#9656;</span></td>'+
+        '<td class="key">'+esc(t.key)+'</td>'+
+        '<td><b>'+esc(t.connector)+'</b><div class="muted hide-sm">'+esc(t.dept)+'</div></td>'+
+        '<td class="hide-sm">'+esc(t.requester)+'</td>'+
+        '<td class="hide-sm"><span class="'+socClass(t.soc2)+'">'+esc(t.soc2)+'</span></td>'+
+        '<td class="hide-sm"><span class="'+(t.data==="Confidential"?"data-conf":"")+'">'+esc(t.data)+'</span></td>'+
+        '<td><span class="chip '+statusClass(t.status)+'">'+esc(t.status)+'</span></td>'+
+        '<td class="hide-sm muted">'+esc(t.created)+'</td>';
+      var detail=document.createElement('tr'); detail.className='detail hidden';
+      var docsCell = isSafeHttpUrl(t.docs)
+        ? '<a href="'+safeHref(t.docs)+'" target="_blank" rel="noopener noreferrer">'+esc(t.docs)+'</a>'
+        : esc(t.docs)+' (link not shown - unsafe URL)';
+      detail.innerHTML='<td colspan="8"><div class="inner"><h4>'+esc(t.key)+' - Connector request: '+esc(t.connector)+'</h4>'+
+        '<dl class="kv">'+
+          kv('Request type', esc('Request a Claude Connector'))+kv('Issue type', esc('Service Request'))+
+          kv('Reporter', esc(t.requester+' ('+t.dept+')'))+kv('Connector name', esc(t.connector))+
+          kv('Vendor docs URL', docsCell)+
+          kv('Business use case', esc(t.use))+kv('Users / department', esc(t.users))+
+          kv('Existing SU contract', esc(t.contract))+kv('SOC 2 Type II status', esc(t.soc2))+
+          kv('Data classification', esc(t.data))+kv('Status', esc(t.status))+kv('Created', esc(t.created))+
+        '</dl></div></td>';
+      function toggle(){
+        var open = detail.classList.toggle('hidden') === false;
+        tr.classList.toggle('open', open);
+        tr.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      tr.addEventListener('click', toggle);
+      tr.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }
+      });
+      tbody.appendChild(tr); tbody.appendChild(detail);
+    });
+    if(!shown.length){ tbody.innerHTML='<tr><td colspan="8" class="muted" style="padding:1.2rem;text-align:center">No matching tickets.</td></tr>'; }
+  }
+  function summary(){
+    var order=["Waiting for review","Waiting for documentation","Under review","Approved","Declined"];
+    var labels={"Waiting for review":"Waiting review","Waiting for documentation":"Need docs","Under review":"Under review","Approved":"Approved","Declined":"Declined"};
+    var cards=[['Total',TICKETS.length]];
+    order.forEach(function(s){ cards.push([labels[s], TICKETS.filter(function(t){return t.status===s;}).length]); });
+    document.getElementById('summary').innerHTML=cards.map(function(c){
+      return '<div class="stat"><b>'+esc(String(c[1]))+'</b><span>'+esc(c[0])+'</span></div>';
+    }).join('');
+  }
+  document.getElementById('q').addEventListener('input',render);
+  document.getElementById('statusFilter').addEventListener('change',render);
+  summary(); render();
+})();
+</script>
+</body>
+</html>
