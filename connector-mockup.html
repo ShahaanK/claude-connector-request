@@ -507,7 +507,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
           kv('Request type', esc('Request a Claude Connector'))+kv('Issue type', esc('Service Request'))+
           kv('Reporter', esc(t.requester+' ('+t.dept+')'))+kv('Connector name', esc(t.connector))+
           kv('Vendor docs URL', docsCell)+
-          kv('Business use case', esc(t.use))+kv('Users / department', esc(t.users))+
+          kv('Use case', esc(t.use))+kv('Approx. number of users', esc(t.users))+
           kv('Existing SU contract', esc(t.contract))+kv('SOC 2 Type II status', esc(t.soc2))+
           kv('Data classification', esc(t.data))+kv('Status', esc(t.status))+kv('Created', esc(t.created))+
         '</dl></div></td>';
