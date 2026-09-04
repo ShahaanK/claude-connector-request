@@ -108,9 +108,10 @@ Not a live edit - proposed wording for Aaron to apply after approval. Replace th
 
 > **How to request a new connector**
 > Submit a request through the AI Help portal: **[Request a Claude Connector](PORTAL_LINK)**. The form walks you through everything ITS needs: the connector name and vendor documentation link, your business use case, whether SU already has a contract with the vendor, the SOC 2 Type II status (a trust-portal link is preferred), and the type of University data involved.
+> Not sure how to get a vendor's SOC 2 Type II report? See **[How to get a SOC 2 report](SOC2_GUIDE_LINK)** - there is no central repository, but if you already have a login with the vendor you can usually retrieve it, and a vendor without one is not an automatic no.
 > Prefer the form so your request arrives complete and is not delayed. For questions, email [aihelp@syr.edu](mailto:aihelp@syr.edu).
 
-Keep the "What We Review" and "What Could Prevent Approval" sections as-is. `PORTAL_LINK` is filled in once the request type exists.
+Keep the "What We Review" and "What Could Prevent Approval" sections as-is. `PORTAL_LINK` and `SOC2_GUIDE_LINK` are filled in once the request type and the guide page exist.
 
 ---
 
