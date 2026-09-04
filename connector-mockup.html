@@ -197,18 +197,18 @@
             </div>
             <div class="field">
               <label for="soc2">SOC 2 Type II report status <span class="req">*</span></label>
-              <p class="hint" id="soc2-hint">A SOC 2 Type II report is the strongest evidence a vendor handles data safely. Provide a trust-portal link or the report file if you can. Not sure how to get it? See <a href="how-to-get-soc2.html" target="_blank" rel="noopener">how to get a SOC 2 report</a>.</p>
+              <p class="hint" id="soc2-hint">A SOC 2 Type II report is the strongest evidence that a vendor handles data securely. If you have it, upload the PDF below. If you are unsure how to obtain it, see <a href="how-to-get-soc2.html" target="_blank" rel="noopener">how to get a SOC 2 report</a>.</p>
               <select id="soc2" aria-describedby="soc2-hint">
                 <option value="">Select one...</option>
-                <option value="Attached">I have it (I will provide a trust-portal link or attach it)</option>
+                <option value="Attached">I have it and will upload the PDF</option>
                 <option value="Can obtain">I can obtain it from the vendor</option>
                 <option value="Vendor lacks one">The vendor does not have one</option>
               </select>
               <p class="err" id="soc2-err">Please choose the SOC 2 status.</p>
               <div class="conditional" id="soc2upload" style="display:none">
-                <label for="soc2link">Vendor trust-portal link to the SOC 2 Type II report (preferred)</label>
-                <p class="hint" id="soc2link-hint">Paste the vendor's trust-page link. If the trust page requires a login or NDA to open the report, please also send us the SOC 2 report file - ITS may not be able to log in to the vendor's product. (A file upload is available in the live form; disabled in this mockup.)</p>
-                <input type="url" id="soc2link" maxlength="300" placeholder="https://trust.vendor.com/..." aria-describedby="soc2link-hint" />
+                <label for="soc2file">Upload the SOC 2 Type II report (PDF)</label>
+                <p class="hint" id="soc2file-hint">Please upload the report file itself as a PDF. Do not provide only a link: ITS may not be able to log in to the vendor's portal to retrieve it.</p>
+                <input type="file" id="soc2file" accept=".pdf,application/pdf" aria-describedby="soc2file-hint" />
               </div>
             </div>
             <div class="field">
@@ -415,13 +415,12 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
     if(!contract){ setInvalid(document.querySelector('#connForm .radios')); ok=false; firstBad=firstBad||document.querySelector('#connForm .radios input'); }
     req('soc2');
     req('dataclass');
-    // If the SOC 2 link is provided, it must be a safe URL too.
-    var soc2link = document.getElementById('soc2link');
-    if(soc2.value === 'Attached' && soc2link.value.trim() && !isSafeHttpUrl(soc2link.value.trim())){ setInvalid(soc2link); ok=false; firstBad=firstBad||soc2link; }
 
     if(!ok){ if(firstBad && firstBad.focus) firstBad.focus(); return; }
 
     var val = function(id){ return document.getElementById(id).value.trim(); };
+    var soc2file = document.getElementById('soc2file');
+    var soc2name = (soc2file && soc2file.files && soc2file.files.length) ? soc2file.files[0].name : '(PDF to be uploaded)';
     var rows = [
       ['Project / queue','AI Help (AIHELP)'],
       ['Request type','Request a Claude Connector'],
@@ -434,7 +433,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
       ['Users / department',val('breadth') || '(not provided)'],
       ['Existing SU contract',contract.value],
       ['SOC 2 Type II status',val('soc2')],
-      ['SOC 2 trust-portal link', soc2.value==='Attached' ? (val('soc2link') || '(to be provided)') : '(n/a)'],
+      ['SOC 2 report (PDF)', soc2.value==='Attached' ? soc2name : '(n/a)'],
       ['Data classification',val('dataclass')]
     ];
     var dl = document.getElementById('previewBody'); dl.innerHTML = '';
