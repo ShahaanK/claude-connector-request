@@ -9,6 +9,7 @@ This is a review package. Nothing here has been changed in Jira or Confluence.
 | File | What it is |
 |---|---|
 | `connector-mockup.html` | Interactive mockup. Open it in any browser (no install). Two tabs: the **Request form** users would fill in, and the **Agent queue** showing how the resulting tickets look to reviewers. Includes a "preview of the ticket this would open" and the same fields end to end. |
+| `how-to-get-soc2.html` | Requestor-facing guide: how to find and obtain a vendor's SOC 2 report (there is no central repository; a requestor with a vendor login can retrieve one ITS cannot). Linked from the form's SOC 2 field. |
 | `IMPLEMENTATION-SPEC.md` | The build plan: prerequisites and who does what, the form fields, the conditional logic, the security and configuration requirements, and the proposed change to the Confluence connector page. |
 | `SECURITY-REVIEW.md` | A security review of the design (15 findings, ranked) plus an edge-case catalog to test before go-live. The spec references these findings by ID (F1, F2, ...). |
 

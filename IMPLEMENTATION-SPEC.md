@@ -4,6 +4,7 @@
 
 **Companion files (same folder):**
 - `connector-mockup.html` - the approved, tabbed form + queue mockup (hardened).
+- `how-to-get-soc2.html` - a requestor-facing guide on how to find and obtain a vendor's SOC 2 Type II report (linked from the SOC 2 field). Reflects that there is no central repository and that a requestor with a vendor login can retrieve a report ITS cannot.
 - `SECURITY-REVIEW.md` - the full review (15 findings: 5 High, 6 Medium, 4 Low) and edge-case catalog. Finding IDs (F1..F15) are referenced below.
 
 ## Goal and scope (v1)
@@ -41,11 +42,11 @@ Field types are chosen with security in mind (see the notes column). Character c
 | 1 | Connector name | Short text | Yes | 100 | The tool or service you want Claude to connect to (for example, Salesforce, ServiceNow, Notion). | Feeds the ticket summary. Do not map to a label from free text (F6); use a picklist later if desired. |
 | 2 | Vendor connector / MCP documentation URL | Short text (display) or URL field with `^https://` allowlist | Yes | 300 | A link (https) to the vendor's connector or MCP documentation. | Prefer a short-text display field so the agent view does not auto-link an attacker-chosen scheme; if a URL field is used, apply an `^https://` + host allowlist regex (F5). |
 | 3 | Business use case | Paragraph | Yes | 2000 | How you plan to use the integration and what problem it solves. Describe the use case only - do not paste actual records, credentials, or Confidential data. | Data-minimization wording is required at entry (F1). |
-| 4 | Approximate number of users / department | Short text | No | 120 | Helps ITS weigh breadth of use. | - |
+| 4 | Approximate number of users / department | Short text | No | 120 | (no help text) | - |
 | 5 | Existing SU contract with vendor? | Single-select: Yes / No / Unsure | Yes | - | Does SU already have a contract or agreement with this vendor? | - |
 | 6 | SOC 2 Type II status | Single-select: Have it / Can obtain / Vendor lacks one | Yes | - | A SOC 2 Type II report is the most important requirement. Requests are held until it is provided. | Drives the conditional in section 2. |
-| 7 | SOC 2 evidence | URL field (trust-portal link), `^https://` allowlist; file upload only as a fallback | Conditional (when #6 = Have it) | 300 | Paste the vendor trust-portal link to the SOC 2 report. Prefer the link so an NDA-bound report is not stored on the ticket. | Link-first by design (F2). If upload is enabled, enforce type/size and attachment (not inline) serving (F9). |
-| 8 | University data that would flow through the connector | Single-select: Public / Internal / Confidential / Restricted / Unsure | Yes | - | Highest data classification the integration could touch. Confidential (FERPA, HIPAA, PII, financial) faces a higher bar. | Drives conditional deflection + issue security (sections 2 and 3). |
+| 7 | SOC 2 evidence | URL field (trust-portal link), `^https://` allowlist; file upload only as a fallback | Conditional (when #6 = Have it) | 300 | Paste the vendor trust-portal link to the SOC 2 report. If the trust page requires a login or NDA to open the report, the requester must also send the report file, since ITS may not be able to log in to the vendor's product. Prefer the link so an NDA-bound report is not stored on the ticket. | Link-first by design (F2). If upload is enabled, enforce type/size and attachment (not inline) serving (F9). |
+| 8 | University data that would flow through the connector | Single-select: Public / Enterprise / Confidential / Unsure | Yes | - | Highest data classification the integration could touch, linked to the SU [Data Classification Definitions](https://answers.atlassian.syr.edu/wiki/x/dgF8CQ) page (SU's three official levels are Public, Enterprise, Confidential). Confidential (FERPA, HIPAA, PII, financial) faces a higher bar. | Drives conditional deflection + issue security (sections 2 and 3). |
 
 **Ticket mapping:** Summary = "Connector request: <connector name>"; Issue type = Service Request; Reporter = the SSO-authenticated portal user. Map answers into an **ADF-rendered** description or structured fields, not a wiki-markup description (F6). Strip control and bidi characters at mapping time (F6).
 
@@ -53,16 +54,15 @@ Field types are chosen with security in mind (see the notes column). Character c
 
 ## 2. ProForma conditional logic (deflection + minimization)
 
-This is the highest-value edge case from the review: stop doomed requests at the form instead of creating tickets destined to be declined.
+These are informational nudges shown at the form - they never block submission (the requester often cannot know the vendor's SOC 2 status, and a student cannot obtain the report at all). ITS verifies during review.
 
 | Condition | Behavior |
 |---|---|
-| #6 SOC 2 = "Vendor lacks one" | Show inline notice: without a SOC 2 Type II report a connector is very unlikely to be approved; suggest the vendor obtain one, or a **local MCP connection in Claude Desktop** (data stays on the user's machine) as an alternative. Allow submit but flag. |
-| #8 Data class = "Restricted" | Show inline notice: Restricted-data connectors are rarely approvable; ask the user to confirm the classification before submitting. |
-| #8 Data class = "Confidential" | Show inline notice: additional security review applies; reiterate "describe the use case only, do not paste records" (F1). |
+| #8 Data class = "Confidential" | Show an informational notice: additional security review applies; reiterate "describe the use case only, do not paste records" (F1). |
+| #6 SOC 2 = "Vendor lacks one" | Show an informational notice (not a blocker): ITS verifies the vendor's security posture during review; if the vendor has no formal documentation, a **local MCP connection in Claude Desktop** (data stays on the user's machine) may fit better. |
 | #6 = "Have it" | Reveal field #7 (SOC 2 evidence). Otherwise keep it hidden. |
 
-The mockup demonstrates all of this client-side (the "Before you submit" box); in v1 it is ProForma conditional logic.
+The mockup demonstrates all of this client-side (the "Good to know" box); in v1 it is ProForma conditional logic. **After submission, the "What happens next" text shows on the JSM request confirmation screen, not on the empty form.**
 
 ---
 
@@ -72,7 +72,7 @@ These are build requirements, not optional. High first.
 
 | Ref | Requirement | Why |
 |---|---|---|
-| **F1 (High)** | Scope the **AIHELP agent group** to the named AI review team only; confirm ITS-at-large do not hold AIHELP agent licenses. For Confidential/Restricted submissions, apply an **issue security level** (or a separate restricted request type) so those tickets are not visible to the full agent pool. | The queue holds Confidential-tagged, free-text descriptions; JSM makes every issue readable by every agent on the desk. |
+| **F1 (High)** | Scope the **AIHELP agent group** to the named AI review team only; confirm ITS-at-large do not hold AIHELP agent licenses. For Confidential submissions, apply an **issue security level** (or a separate restricted request type) so those tickets are not visible to the full agent pool. | The queue holds Confidential-tagged, free-text descriptions; JSM makes every issue readable by every agent on the desk. |
 | **F2 (High)** | SOC 2 evidence defaults to a **trust-portal link** (field #7). If files are ever accepted, set a **retention rule** (delete N days after decision) and restrict download to the scoped agent group. | SOC 2 reports are NDA-bound; attachments inherit broad visibility and indefinite retention. |
 | **F3 / F10 (High)** | Lock down the **email fallback**: restrict to authenticated SU senders, disable auto-creation of external customer accounts, and treat email-created tickets as "unverified reporter / incomplete intake". Do not let an email ticket satisfy the SOC 2 gate without agent confirmation. Auto-reply with the portal link. | Email bypasses required fields and takes a spoofable `From` as reporter. |
 | **F7 (Med)** | Portal restricted to **authenticated SU SSO users**; disable anonymous raise and external auto-provisioning. Keep raise-on-behalf-of restricted; when used, record the acting agent. | Preserves the SSO identity/attestation the form assumes. |
@@ -117,7 +117,7 @@ Keep the "What We Review" and "What Could Prevent Approval" sections as-is. `POR
 ## 5. Test checklist before go-live (from the edge-case catalog)
 - Required fields enforced server-side by ProForma (not just client-side).
 - Docs URL field rejects non-https and attribute-breakout input; empty-host `https://` rejected.
-- Confidential/Restricted + "Vendor lacks one" triggers the deflection notice.
+- Confidential data shows the additional-review note; "Vendor lacks one" shows the informational note (neither hard-blocks submission).
 - A submission with a scripted connector name renders inert in the agent view (Atlassian escaping) - spot-check.
 - Confidential submission is NOT visible to an out-of-scope agent account (verify F1 config with a test account).
 - Email-created ticket is flagged unverified and does not auto-satisfy the SOC 2 gate.
@@ -129,3 +129,4 @@ Keep the "What We Review" and "What Could Prevent Approval" sections as-is. `POR
 - Custom web form or backend (rejected; see F11).
 - Auto-deflection that hard-blocks submission (v1 warns; hard gating is a fast-follow).
 - Handling for connectors already enabled org-wide and requester-leaves-SU orphaning (process gaps noted for v2).
+- **Authenticated page + Agent queue as a permission set (future).** There is discussion of an authenticated area for the AI Help page; a form like this would sit behind it, and the "Agent queue" view would be a JSM agent permission set, not a public view. Deferred until that authenticated area exists.
