@@ -209,6 +209,14 @@
                 <p class="hint" id="soc2file-hint">Upload the report file itself as a PDF. If the report is only available behind a vendor login, please still upload the file - ITS may not be able to log in to the product to retrieve it.</p>
                 <input type="file" id="soc2file" accept=".pdf,application/pdf" aria-describedby="soc2file-hint" />
               </div>
+              <div class="conditional" id="soc2none" style="display:none">
+                <div class="field" style="margin:0">
+                  <label for="soc2steps">What steps did you take to confirm there is no SOC 2 report? <span class="req">*</span></label>
+                  <p class="hint" id="soc2steps-hint">For example: checked the vendor's trust center or security page, searched the web, or asked their support. This helps ITS verify before ruling it out.</p>
+                  <textarea id="soc2steps" maxlength="1000" aria-describedby="soc2steps-hint"></textarea>
+                  <p class="err" id="soc2steps-err">Please describe the steps you took.</p>
+                </div>
+              </div>
             </div>
             <div class="field">
               <label for="dataclass">University data that would flow through the connector <span class="req">*</span></label>
@@ -373,7 +381,10 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
     });
   }
 
-  function updateSoc2Upload(){ soc2upload.style.display = (soc2.value === 'Attached') ? 'block' : 'none'; }
+  function updateSoc2Upload(){
+    soc2upload.style.display = (soc2.value === 'Attached') ? 'block' : 'none';
+    document.getElementById('soc2none').style.display = (soc2.value === 'Vendor lacks one') ? 'block' : 'none';
+  }
 
   soc2.addEventListener('change', updateSoc2Upload);
 
@@ -401,6 +412,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
     if(!contract){ setInvalid(document.querySelector('#connForm .radios')); ok=false; firstBad=firstBad||document.querySelector('#connForm .radios input'); }
     req('soc2');
     req('dataclass');
+    if(soc2.value === 'Vendor lacks one'){ var st=document.getElementById('soc2steps'); if(!st.value.trim()){ setInvalid(st); ok=false; firstBad=firstBad||st; } }
 
     if(!ok){ if(firstBad && firstBad.focus) firstBad.focus(); return; }
 
@@ -420,6 +432,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
       ['Existing SU contract',contract.value],
       ['SOC 2 Type II status',val('soc2')],
       ['SOC 2 report (PDF)', soc2.value==='Attached' ? soc2name : '(n/a)'],
+      ['Steps taken to find SOC 2', soc2.value==='Vendor lacks one' ? (val('soc2steps') || '(not provided)') : '(n/a)'],
       ['Data classification',val('dataclass')]
     ];
     var dl = document.getElementById('previewBody'); dl.innerHTML = '';

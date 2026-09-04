@@ -44,25 +44,25 @@ Field types are chosen with security in mind (see the notes column). Character c
 | 3 | Business use case | Paragraph | Yes | 2000 | How you plan to use the integration and what problem it solves. Describe the use case only - do not paste actual records, credentials, or Confidential data. | Data-minimization wording is required at entry (F1). |
 | 4 | Approximate number of users / department | Short text | No | 120 | (no help text) | - |
 | 5 | Existing SU contract with vendor? | Single-select: Yes / No / Unsure | Yes | - | Does SU already have a contract or agreement with this vendor? | - |
-| 6 | SOC 2 Type II status | Single-select: Have it / Can obtain / Vendor lacks one | Yes | - | A SOC 2 Type II report is the most important requirement. Requests are held until it is provided. | Drives the conditional in section 2. |
+| 6 | SOC 2 Type II status | Single-select: Upload SOC 2 Report / The vendor does not have one | Yes | - | A SOC 2 Type II report is the strongest evidence a vendor handles data securely. | Drives the conditional fields in section 2. |
 | 7 | SOC 2 report (PDF upload) | File upload, PDF only | Conditional (when #6 = Have it) | - | Upload the SOC 2 Type II report as a PDF. Provide the file itself, not a link: ITS may not be able to log in to the vendor's portal to retrieve it. | Stakeholder decision: file upload, not a link (the requestor has vendor access ITS lacks). Enforce PDF type + size, AV scan, and attachment (not inline) serving (F9); set a retention rule and restrict download to the scoped agent group (F1/F2). |
-| 8 | University data that would flow through the connector | Single-select: Public / Enterprise / Confidential / Unsure | Yes | - | Highest data classification the integration could touch, linked to the SU [Data Classification Definitions](https://answers.atlassian.syr.edu/wiki/x/dgF8CQ) page (SU's three official levels are Public, Enterprise, Confidential). Confidential (FERPA, HIPAA, PII, financial) faces a higher bar. | Drives conditional deflection + issue security (sections 2 and 3). |
+| 8 | University data that would flow through the connector | Single-select: Public / Enterprise / Confidential / Unsure | Yes | - | Highest data classification the integration could touch, linked to the SU [Data Classification Definitions](https://answers.atlassian.syr.edu/wiki/x/dgF8CQ) page (SU's three official levels are Public, Enterprise, Confidential). Confidential (FERPA, HIPAA, PII, financial) faces a higher bar. | Drives issue security (section 3). |
+| 9 | Steps taken to confirm there is no SOC 2 report | Paragraph | Conditional (shown + required when #6 = "The vendor does not have one") | 1000 | Describe what you did to look for the report (checked the trust center or security page, searched the web, asked vendor support). | Lets ITS verify the vendor genuinely has no report before it is ruled out; discourages a premature "vendor lacks one". |
 
 **Ticket mapping:** Summary = "Connector request: <connector name>"; Issue type = Service Request; Reporter = the SSO-authenticated portal user. Map answers into an **ADF-rendered** description or structured fields, not a wiki-markup description (F6). Strip control and bidi characters at mapping time (F6).
 
 ---
 
-## 2. ProForma conditional logic (deflection + minimization)
+## 2. Conditional fields and confirmation
 
-These are informational nudges shown at the form - they never block submission (the requester often cannot know the vendor's SOC 2 status, and a student cannot obtain the report at all). ITS verifies during review.
+The SOC 2 status drives two conditional fields. There are no inline "you will likely be rejected" warnings: a requestor often cannot know the vendor's SOC 2 status, and a student cannot obtain the report at all, so ITS verifies during review.
 
 | Condition | Behavior |
 |---|---|
-| #8 Data class = "Confidential" | Show an informational notice: additional security review applies; reiterate "describe the use case only, do not paste records" (F1). |
-| #6 SOC 2 = "Vendor lacks one" | Show an informational notice (not a blocker): ITS verifies the vendor's security posture during review; if the vendor has no formal documentation, a **local MCP connection in Claude Desktop** (data stays on the user's machine) may fit better. |
-| #6 = "Have it" | Reveal the SOC 2 PDF upload (field #7). Otherwise keep it hidden. |
+| #6 SOC 2 = "Upload SOC 2 Report" | Reveal the SOC 2 PDF upload (field #7). |
+| #6 SOC 2 = "The vendor does not have one" | Reveal a required "what steps did you take to confirm there is no SOC 2 report" field (#9), so ITS can verify before the vendor is ruled out. |
 
-The mockup demonstrates all of this client-side (the "Good to know" box); in v1 it is ProForma conditional logic. **After submission, the "What happens next" text shows on the JSM request confirmation screen, not on the empty form.**
+**After submission, show a confirmation screen ("What happens next"):** ITS reviews the request; ITS reaches out if it needs clarification or additional information; the requestor is notified of the decision. In v1 this is the JSM request-type confirmation message, not a panel on the empty form.
 
 ---
 
@@ -118,7 +118,7 @@ Keep the "What We Review" and "What Could Prevent Approval" sections as-is. `POR
 ## 5. Test checklist before go-live (from the edge-case catalog)
 - Required fields enforced server-side by ProForma (not just client-side).
 - Docs URL field rejects non-https and attribute-breakout input; empty-host `https://` rejected.
-- Confidential data shows the additional-review note; "Vendor lacks one" shows the informational note (neither hard-blocks submission).
+- "Upload SOC 2 Report" reveals the PDF upload; "The vendor does not have one" reveals the required "steps taken" field; submission shows the "What happens next" confirmation.
 - A submission with a scripted connector name renders inert in the agent view (Atlassian escaping) - spot-check.
 - Confidential submission is NOT visible to an out-of-scope agent account (verify F1 config with a test account).
 - Email-created ticket is flagged unverified and does not auto-satisfy the SOC 2 gate.
