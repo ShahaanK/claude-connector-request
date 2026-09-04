@@ -178,8 +178,15 @@
               <p class="err" id="usecase-err">Please describe your use case.</p>
             </div>
             <div class="field">
-              <label for="breadth">Approximate number of users / department</label>
-              <input type="text" id="breadth" maxlength="120" placeholder="e.g. ~40 users, Whitman School" />
+              <label>Approximately how many people would use this connector?</label>
+              <div class="radios" role="radiogroup" aria-label="Approximate number of users">
+                <label><input type="radio" name="breadth" value="1" /> 1</label>
+                <label><input type="radio" name="breadth" value="~10" /> ~10</label>
+                <label><input type="radio" name="breadth" value="~100" /> ~100</label>
+                <label><input type="radio" name="breadth" value="~1,000" /> ~1,000</label>
+                <label><input type="radio" name="breadth" value="All of Syracuse University" /> All of Syracuse University</label>
+                <label><input type="radio" name="breadth" value="Other" /> Other</label>
+              </div>
             </div>
           </fieldset>
 
@@ -212,7 +219,7 @@
               <div class="conditional" id="soc2none" style="display:none">
                 <div class="field" style="margin:0">
                   <label for="soc2steps">What steps did you take to confirm there is no SOC 2 report? <span class="req">*</span></label>
-                  <p class="hint" id="soc2steps-hint">For example: checked the vendor's trust center or security page, searched the web, or asked their support. This helps ITS verify before ruling it out.</p>
+                  <p class="hint" id="soc2steps-hint">For example: checked the vendor's trust center or security page, searched the web, or asked their support. Please include any and all links to the websites you checked. This helps ITS verify before ruling it out.</p>
                   <textarea id="soc2steps" maxlength="1000" aria-describedby="soc2steps-hint"></textarea>
                   <p class="err" id="soc2steps-err">Please describe the steps you took.</p>
                 </div>
@@ -419,6 +426,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
     var val = function(id){ return document.getElementById(id).value.trim(); };
     var soc2file = document.getElementById('soc2file');
     var soc2name = (soc2file && soc2file.files && soc2file.files.length) ? soc2file.files[0].name : '(PDF to be uploaded)';
+    var breadth = form.querySelector('input[name="breadth"]:checked');
     var rows = [
       ['Project / queue','AI Help (AIHELP)'],
       ['Request type','Request a Claude Connector'],
@@ -428,7 +436,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
       ['Connector name',val('cname')],
       ['Vendor docs URL',val('cdocs')],
       ['Business use case',val('usecase')],
-      ['Users / department',val('breadth') || '(not provided)'],
+      ['Approx. number of users', breadth ? breadth.value : '(not provided)'],
       ['Existing SU contract',contract.value],
       ['SOC 2 Type II status',val('soc2')],
       ['SOC 2 report (PDF)', soc2.value==='Attached' ? soc2name : '(n/a)'],
