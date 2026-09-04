@@ -59,18 +59,17 @@
   .radios label{font-weight:400;display:flex;align-items:flex-start;gap:.5rem;margin:.35rem 0}
   .radios input{margin-top:.2rem}
   .conditional{border-left:3px solid var(--orange);background:#fff8f4;padding:.75rem .85rem;border-radius:0 8px 8px 0;margin-top:.5rem}
-  .deflect{display:none;border-left:4px solid var(--navy);background:#f0f4fb;color:#33405c;
-    padding:.8rem .95rem;border-radius:0 8px 8px 0;margin-top:1.1rem;font-size:.9rem}
-  .deflect.show{display:block}
-  .deflect b{color:var(--navy)}
-  .deflect ul{margin:.4rem 0 0;padding-left:1.1rem}
+  .confirm{border:1px solid #bfe3cc;background:#eef8f1;border-radius:12px;padding:1.4rem 1.5rem;margin-top:1.4rem}
+  .confirm-badge{width:2.2rem;height:2.2rem;border-radius:50%;background:#0a7d3b;color:#fff;display:grid;place-items:center;font-size:1.2rem;font-weight:700;margin-bottom:.5rem}
+  .confirm h3{margin:.1rem 0 .3rem;color:#0a7d3b;font-size:1.2rem}
+  .confirm ol{margin:.5rem 0 .6rem;padding-left:1.2rem}
+  .confirm li{margin:.35rem 0}
+  .confirm .lead2{margin:.7rem 0 0;font-weight:700;color:#0a7d3b}
   .actions{display:flex;gap:.75rem;align-items:center;margin-top:1.5rem;flex-wrap:wrap}
   button.b{font:inherit;font-weight:700;border:0;border-radius:999px;padding:.7rem 1.4rem;cursor:pointer}
   .btn-primary{background:var(--orange);color:#fff}
   .btn-primary:hover{background:var(--orange-dk)}
   .btn-ghost{background:transparent;color:var(--navy);border:1px solid #c3cad6}
-  .note-next{display:none;background:#f0f4fb;border:1px solid #d5deee;border-radius:10px;padding:1rem 1.1rem;margin-top:1.4rem;font-size:.9rem;color:#33405c}
-  .note-next.show{display:block}
   .note-next b{color:var(--navy)}
   .preview{display:none;margin-top:1.4rem;border:1px solid var(--line);border-radius:12px;overflow:hidden}
   .preview h3{margin:0;background:var(--navy);color:#fff;font-size:.9rem;padding:.7rem 1rem}
@@ -201,14 +200,13 @@
               <p class="hint" style="margin-top:.4rem">Unsure how to obtain it? <a href="how-to-get-soc2.html" target="_blank" rel="noopener"><b>How to get a SOC 2 report</b></a></p>
               <select id="soc2" aria-describedby="soc2-hint">
                 <option value="">Select one...</option>
-                <option value="Attached">I have it and will upload the PDF</option>
-                <option value="Can obtain">I can obtain it from the vendor</option>
+                <option value="Attached">Upload SOC 2 Report</option>
                 <option value="Vendor lacks one">The vendor does not have one</option>
               </select>
               <p class="err" id="soc2-err">Please choose the SOC 2 status.</p>
               <div class="conditional" id="soc2upload" style="display:none">
                 <label for="soc2file">Upload the SOC 2 Type II report (PDF)</label>
-                <p class="hint" id="soc2file-hint">Please upload the report file itself as a PDF. Do not provide only a link: ITS may not be able to log in to the vendor's portal to retrieve it.</p>
+                <p class="hint" id="soc2file-hint">Upload the report file itself as a PDF. If the report is only available behind a vendor login, please still upload the file - ITS may not be able to log in to the product to retrieve it.</p>
                 <input type="file" id="soc2file" accept=".pdf,application/pdf" aria-describedby="soc2file-hint" />
               </div>
             </div>
@@ -224,8 +222,6 @@
               </select>
               <p class="err" id="dataclass-err">Please choose a data classification.</p>
             </div>
-
-            <div class="deflect" id="deflect" role="status" aria-live="polite"></div>
           </fieldset>
 
           <div class="actions">
@@ -234,13 +230,22 @@
           </div>
         </form>
 
-        <div class="preview" id="preview" aria-live="polite">
-          <h3>Preview: the AIHELP ticket this would open</h3>
-          <div class="body"><dl class="kv" id="previewBody"></dl></div>
+        <div class="confirm" id="confirmation" hidden>
+          <div class="confirm-badge" aria-hidden="true">&#10003;</div>
+          <h3>Request submitted</h3>
+          <p>Thank you. Your connector request has been received.</p>
+          <p class="lead2">What happens next</p>
+          <ol>
+            <li><b>Review.</b> ITS reviews your request and the vendor's security posture.</li>
+            <li><b>Clarification.</b> If we need anything clarified or any additional information, we will reach out to you.</li>
+            <li><b>Decision.</b> You will be notified of the outcome, and if the connector is approved, when it is enabled.</li>
+          </ol>
+          <p>Questions in the meantime? Email <a href="mailto:aihelp@syr.edu">aihelp@syr.edu</a>.</p>
         </div>
 
-        <div class="note-next" id="noteNext">
-          <b>What happens next.</b> ITS reviews connector requests for security compliance (SOC 2), any existing SU vendor relationship, data-classification risk, breadth of use, and vendor maturity. Questions? Email <a href="mailto:aihelp@syr.edu">aihelp@syr.edu</a>.
+        <div class="preview" id="preview" aria-live="polite">
+          <h3>For this mockup: the AIHELP ticket this request would create</h3>
+          <div class="body"><dl class="kv" id="previewBody"></dl></div>
         </div>
       </div>
     </div>
@@ -343,7 +348,6 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
   var soc2 = document.getElementById('soc2');
   var soc2upload = document.getElementById('soc2upload');
   var dataclass = document.getElementById('dataclass');
-  var deflect = document.getElementById('deflect');
 
   function fieldEl(node){ return node.closest('.field'); }
 
@@ -371,34 +375,15 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
 
   function updateSoc2Upload(){ soc2upload.style.display = (soc2.value === 'Attached') ? 'block' : 'none'; }
 
-  function updateDeflect(){
-    var msgs = [];
-    if(dataclass.value === 'Confidential'){
-      msgs.push('This connector could touch Confidential data (FERPA, HIPAA, PII, or financial). It will get additional security review. Describe the use case only - never paste actual records into this form.');
-    }
-    if(soc2.value === 'Vendor lacks one'){
-      msgs.push('No SOC 2 report is not an automatic blocker - ITS verifies the vendor\'s security posture during review. If the vendor has no formal security documentation, a local MCP connection in Claude Desktop (data stays on your own machine) may be a better fit.');
-    }
-    if(msgs.length){
-      deflect.innerHTML = '<b>Good to know</b><ul>' + msgs.map(function(m){ return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>';
-      deflect.classList.add('show');
-    } else {
-      deflect.classList.remove('show');
-      deflect.innerHTML = '';
-    }
-  }
-
-  soc2.addEventListener('change', function(){ updateSoc2Upload(); updateDeflect(); });
-  dataclass.addEventListener('change', updateDeflect);
+  soc2.addEventListener('change', updateSoc2Upload);
 
   form.addEventListener('reset', function(){
     // Defer so control values are cleared before we sync derived UI.
     setTimeout(function(){
       clearInvalid();
       updateSoc2Upload();
-      updateDeflect();
       var pv = document.getElementById('preview'); pv.style.display = 'none';
-      document.getElementById('noteNext').classList.remove('show');
+      document.getElementById('confirmation').hidden = true;
     }, 0);
   });
 
@@ -444,8 +429,8 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
       dl.appendChild(dt); dl.appendChild(dd);
     });
     var pv=document.getElementById('preview'); pv.style.display='block';
-    document.getElementById('noteNext').classList.add('show');
-    pv.scrollIntoView({behavior:'smooth',block:'start'});
+    var conf=document.getElementById('confirmation'); conf.hidden=false;
+    conf.scrollIntoView({behavior:'smooth',block:'start'});
   });
 })();
 
