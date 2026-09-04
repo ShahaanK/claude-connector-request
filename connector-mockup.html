@@ -172,10 +172,10 @@
           <fieldset>
             <legend>Your use case</legend>
             <div class="field">
-              <label for="usecase">Business use case <span class="req">*</span></label>
-              <p class="hint" id="usecase-hint">How you plan to use the integration and what problem it solves. Describe the use case only - do not paste actual records, credentials, or Confidential data into this form.</p>
-              <textarea id="usecase" maxlength="2000" aria-describedby="usecase-hint"></textarea>
-              <p class="err" id="usecase-err">Please describe your use case.</p>
+              <label for="usecase">Use case <span class="req">*</span></label>
+              <p class="hint" id="usecase-hint">How you plan to use the integration and what problem it solves (100 characters minimum). Describe the use case only - do not paste actual records, credentials, or Confidential data into this form.</p>
+              <textarea id="usecase" minlength="100" maxlength="2000" aria-describedby="usecase-hint"></textarea>
+              <p class="err" id="usecase-err">Please describe your use case (at least 100 characters).</p>
             </div>
             <div class="field">
               <label>Approximately how many people would use this connector?</label>
@@ -218,9 +218,9 @@
               <div class="conditional" id="soc2none" style="display:none">
                 <div class="field" style="margin:0">
                   <label for="soc2steps">What steps did you take to confirm there is no SOC 2 report? <span class="req">*</span></label>
-                  <p class="hint" id="soc2steps-hint">For example: checked the vendor's trust center or security page, searched the web, or asked their support. Please include any and all links to the websites you checked. This helps ITS verify before ruling it out.</p>
-                  <textarea id="soc2steps" maxlength="1000" aria-describedby="soc2steps-hint"></textarea>
-                  <p class="err" id="soc2steps-err">Please describe the steps you took.</p>
+                  <p class="hint" id="soc2steps-hint">For example: checked the vendor's trust center or security page, searched the web, or asked their support. Please include any and all links to the websites you checked (100 characters minimum). This helps ITS verify before ruling it out.</p>
+                  <textarea id="soc2steps" minlength="100" maxlength="1000" aria-describedby="soc2steps-hint"></textarea>
+                  <p class="err" id="soc2steps-err">Please describe the steps you took, with links (at least 100 characters).</p>
                 </div>
               </div>
             </div>
@@ -413,12 +413,13 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
     req('cname');
     var docs = document.getElementById('cdocs');
     if(!isSafeHttpUrl(docs.value.trim())){ setInvalid(docs); ok=false; firstBad=firstBad||docs; }
-    req('usecase');
+    var uc = document.getElementById('usecase');
+    if(uc.value.trim().length < 100){ setInvalid(uc); ok=false; firstBad=firstBad||uc; }
     var contract = form.querySelector('input[name="contract"]:checked');
     if(!contract){ setInvalid(document.querySelector('#connForm .radios')); ok=false; firstBad=firstBad||document.querySelector('#connForm .radios input'); }
     req('soc2');
     req('dataclass');
-    if(soc2.value === 'Vendor lacks one'){ var st=document.getElementById('soc2steps'); if(!st.value.trim()){ setInvalid(st); ok=false; firstBad=firstBad||st; } }
+    if(soc2.value === 'Vendor lacks one'){ var st=document.getElementById('soc2steps'); if(st.value.trim().length < 100){ setInvalid(st); ok=false; firstBad=firstBad||st; } }
 
     if(!ok){ if(firstBad && firstBad.focus) firstBad.focus(); return; }
 
@@ -434,7 +435,7 @@ function safeHref(u){ return isSafeHttpUrl(u) ? esc(u) : '#'; }
       ['Reporter','(the signed-in SU user)'],
       ['Connector name',val('cname')],
       ['Vendor docs URL',val('cdocs')],
-      ['Business use case',val('usecase')],
+      ['Use case',val('usecase')],
       ['Approx. number of users', breadth ? breadth.value : '(not provided)'],
       ['Existing SU contract',contract.value],
       ['SOC 2 Type II status',val('soc2')],
