@@ -156,13 +156,13 @@
           <fieldset>
             <legend>The connector</legend>
             <div class="field">
-              <label for="cname">Connector name <span class="req">*</span></label>
+              <label for="cname">Connector Name <span class="req">*</span></label>
               <p class="hint" id="cname-hint">The tool or service you want Claude to connect to (for example, Salesforce, ServiceNow, Notion).</p>
               <input type="text" id="cname" autocomplete="off" maxlength="120" aria-describedby="cname-hint" />
               <p class="err" id="cname-err">Please enter the connector name.</p>
             </div>
             <div class="field">
-              <label for="cdocs">Vendor connector / MCP documentation URL <span class="req">*</span></label>
+              <label for="cdocs">Vendor Connector / MCP Documentation URL <span class="req">*</span></label>
               <p class="hint" id="cdocs-hint">A link (starting with https://) to the vendor's connector or Model Context Protocol (MCP) documentation.</p>
               <input type="url" id="cdocs" placeholder="https://" maxlength="300" aria-describedby="cdocs-hint" />
               <p class="err" id="cdocs-err">Please enter a valid https link with no spaces or quotes.</p>
@@ -170,10 +170,10 @@
           </fieldset>
 
           <fieldset>
-            <legend>Your use case</legend>
+            <legend>Your Use Case</legend>
             <div class="field">
-              <label for="usecase">Use case <span class="req">*</span></label>
-              <p class="hint" id="usecase-hint">How you plan to use the integration and what problem it solves (100 characters minimum). Describe the use case only - do not paste actual records, credentials, or Confidential data into this form.</p>
+              <label for="usecase">Use Case <span class="req">*</span></label>
+              <p class="hint" id="usecase-hint">How you plan to use the integration and what problem it solves (100 characters minimum). <br> Describe the use case only. Do not paste actual records, credentials, or confidential data into this form.</p>
               <textarea id="usecase" minlength="100" maxlength="2000" aria-describedby="usecase-hint"></textarea>
               <p class="err" id="usecase-err">Please describe your use case (at least 100 characters).</p>
             </div>
@@ -203,7 +203,8 @@
             <div class="field">
               <label for="soc2">SOC 2 Type II report status <span class="req">*</span></label>
               <p class="hint" id="soc2-hint">A SOC 2 Type II report is the strongest evidence that a vendor handles data securely. If you have it, upload the PDF below.</p>
-              <p class="hint" style="margin-top:.4rem">Unsure how to obtain it? <a href="how-to-get-soc2.html" target="_blank" rel="noopener"><b>How to get a SOC 2 report</b></a></p>
+              <p class="hint" style="margin-top:.4rem">Unsure how to obtain it? <a href="how-to-get-soc2.html" target="_blank" rel="noopener"><b>              <p> </p>
+How to get a SOC 2 report</b></a></p>
               <select id="soc2" aria-describedby="soc2-hint">
                 <option value="">Select one...</option>
                 <option value="Attached">Upload SOC 2 Report</option>
@@ -225,7 +226,7 @@
               </div>
             </div>
             <div class="field">
-              <label for="dataclass">University data that would flow through the connector <span class="req">*</span></label>
+              <label for="dataclass">What University data would be processed by the connector?<span class="req">*</span></label>
               <p class="hint" id="dataclass-hint">Highest <a href="https://answers.atlassian.syr.edu/wiki/x/dgF8CQ" target="_blank" rel="noopener">University data classification</a> the integration could touch. Confidential data (FERPA, HIPAA, PII, financial) faces a higher bar.</p>
               <select id="dataclass" aria-describedby="dataclass-hint">
                 <option value="">Select one...</option>
